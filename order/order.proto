@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package order;
+
+// Указывает, в какой Go-пакет будут сгенерированы файлы.
+// Это должно соответствовать структуре вашего Go-модуля.
+option go_package = "saga/order";
+
+// OrderService определяет gRPC-сервис для управления заказами.
+service OrderService {
+  // CreateOrder - это прямой шаг саги (Execute).
+  // Он создает заказ в системе.
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {}
+
+  // CancelOrder - это компенсирующий шаг саги (Compensate).
+  // Он отменяет ранее созданный заказ.
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse) {}
+}
+
+// --- Сообщения для метода CreateOrder ---
+
+message CreateOrderRequest {
+  string order_id = 1;
+  double price = 2;
+  // Мы можем передавать сложные данные как JSON-строку для гибкости.
+  string items_json = 3;
+}
+
+message CreateOrderResponse {
+  string status = 1; // Например, "ORDER_CREATED"
+}
+
+// --- Сообщения для метода CancelOrder ---
+
+message CancelOrderRequest {
+  string order_id = 1;
+}
+
+message CancelOrderResponse {
+  string status = 1; // Например, "ORDER_CANCELLED"
+}
