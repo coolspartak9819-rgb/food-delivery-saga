@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "saga/proto";
+
+// ----------------- Order Service -----------------
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {}
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse) {}
+}
+
+message CreateOrderRequest {
+  string order_id = 1;
+}
+
+message CreateOrderResponse {
+  string status = 1;
+}
+
+message CancelOrderRequest {
+  string order_id = 1;
+}
+
+message CancelOrderResponse {
+  string status = 1;
+}
+
+// ----------------- Payment Service -----------------
+
+service PaymentService {
+  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse) {}
+  rpc RefundPayment(RefundPaymentRequest) returns (RefundPaymentResponse) {}
+}
+
+message ProcessPaymentRequest {
+  string order_id = 1;
+}
+
+message ProcessPaymentResponse {
+  string status = 1;
+}
+
+message RefundPaymentRequest {
+  string order_id = 1;
+}
+
+message RefundPaymentResponse {
+  string status = 1;
+}
+
+// ----------------- Kitchen Service -----------------
+
+service KitchenService {
+  rpc ReserveIngredients(ReserveIngredientsRequest) returns (ReserveIngredientsResponse) {}
+  rpc ReleaseIngredients(ReleaseIngredientsRequest) returns (ReleaseIngredientsResponse) {}
+}
+
+message ReserveIngredientsRequest {
+  string order_id = 1;
+}
+
+message ReserveIngredientsResponse {
+  string status = 1;
+}
+
+message ReleaseIngredientsRequest {
+  string order_id = 1;
+}
+
+message ReleaseIngredientsResponse {
+  string status = 1;
+}

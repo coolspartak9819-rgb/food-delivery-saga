@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: saga-postgres
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=saga_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d saga_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  order_server:
+    build:
+      context: .
+      dockerfile: order_server/Dockerfile
+    container_name: order_server
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/saga_db?sslmode=disable
+    ports:
+      - "50051:50051"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  payment_server:
+    build:
+      context: .
+      dockerfile: payment_server/Dockerfile
+    container_name: payment_server
+    ports:
+      - "50052:50052"
+    depends_on:
+      - db # Хотя он не использует БД, для порядка
+
+  kitchen_server:
+    build:
+      context: .
+      dockerfile: kitchen_server/Dockerfile
+    container_name: kitchen_server
+    ports:
+      - "50053:50053"
+    depends_on:
+      - db
+    # Раскомментируйте для теста компенсации
+    # environment:
+    #   - KITCHEN_SHOULD_FAIL=true
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: orchestrator/Dockerfile
+    container_name: orchestrator
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/saga_db?sslmode=disable
+      - ORDER_SERVICE_ADDR=order_server:50051
+      - PAYMENT_SERVICE_ADDR=payment_server:50052
+      - KITCHEN_SERVICE_ADDR=kitchen_server:50053
+    depends_on:
+      order_server:
+        condition: service_started
+      payment_server:
+        condition: service_started
+      kitchen_server:
+        condition: service_started
