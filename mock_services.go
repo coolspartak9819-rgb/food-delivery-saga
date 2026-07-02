@@ -6,30 +6,6 @@ import (
 	"fmt"
 )
 
-// OrderService отвечает за создание заказа.
-type OrderService struct {
-	ShouldFail        bool
-	ExecuteCalled     bool
-	CompensateCalled  bool
-}
-
-func (s *OrderService) Name() string { return "OrderService" }
-
-func (s *OrderService) Execute(ctx context.Context, orderID string) error {
-	s.ExecuteCalled = true
-	if s.ShouldFail {
-		return errors.New("ошибка создания заказа")
-	}
-	fmt.Printf("[%s] Заказ %s успешно создан\n", s.Name(), orderID)
-	return nil
-}
-
-func (s *OrderService) Compensate(ctx context.Context, orderID string) error {
-	s.CompensateCalled = true
-	fmt.Printf("[%s] Заказ %s переведен в статус 'Отменен' (Откат)\n", s.Name(), orderID)
-	return nil
-}
-
 // PaymentService отвечает за процесс оплаты.
 type PaymentService struct {
 	ShouldFail        bool
