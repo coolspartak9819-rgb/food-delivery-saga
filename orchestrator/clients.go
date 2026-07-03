@@ -3,10 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"time"
 
-	pb "saga/proto"
+	pb "github.com/1oneday2/saga/proto"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
@@ -78,10 +76,10 @@ func handleGRPCError(err error, serviceName, methodName string) error {
 	return nil
 }
 
-func createGRPCConn(addr string) *grpc.ClientConn {
+func createGRPCConn(addr string) (*grpc.ClientConn, error) {
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
-		log.Fatalf("Failed to connect to %s: %v", addr, err)
+		return nil, fmt.Errorf("failed to connect to %s: %w", addr, err)
 	}
-	return conn
+	return conn, nil
 }
