@@ -6,11 +6,10 @@ import (
 	"os"
 	"time"
 
-	pb "saga/proto"
+	pb "github.com/1oneday2/saga/proto"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -27,11 +26,22 @@ func main() {
 	log.Println("ОРКЕСТРАТОР: Успешное подключение к PostgreSQL.")
 
 	// Создаем gRPC соединения
-	orderConn := createGRPCConn(os.Getenv("ORDER_SERVICE_ADDR"))
+	orderConn, err := createGRPCConn(os.Getenv("ORDER_SERVICE_ADDR"))
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer orderConn.Close()
-	paymentConn := createGRPCConn(os.Getenv("PAYMENT_SERVICE_ADDR"))
+
+	paymentConn, err := createGRPCConn(os.Getenv("PAYMENT_SERVICE_ADDR"))
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer paymentConn.Close()
-	kitchenConn := createGRPCConn(os.Getenv("KITCHEN_SERVICE_ADDR"))
+
+	kitchenConn, err := createGRPCConn(os.Getenv("KITCHEN_SERVICE_ADDR"))
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer kitchenConn.Close()
 
 	// Создаем шаги саги

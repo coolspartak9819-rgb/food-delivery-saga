@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto;
 
-option go_package = "saga/proto";
+option go_package = "github.com/1oneday2/saga/proto";
 
 // ----------------- Order Service -----------------
 
